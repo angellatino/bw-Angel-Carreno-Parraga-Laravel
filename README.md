@@ -4,6 +4,7 @@
  Hier komt een beetje meer info + links die ik gebruikt heb voor dit prject.
 
 ADMIN
-database username = angel
-database password = angel1234
+Username: admin
+Email: admin@ehb.be
+Password: Password!321
  
