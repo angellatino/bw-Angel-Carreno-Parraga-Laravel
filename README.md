@@ -5,5 +5,5 @@
 
 ADMIN
 database username = admin
-database password = admin1234
+database password = admin1234  jHr0nvKl/EtgTN[H
  
