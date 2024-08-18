@@ -4,6 +4,6 @@
  Hier komt een beetje meer info + links die ik gebruikt heb voor dit prject.
 
 ADMIN
-database username = admin
-database password = admin1234  jHr0nvKl/EtgTN[H
+database username = angel
+database password = jHr0nvKl/EtgTN[H
  
