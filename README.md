@@ -5,5 +5,5 @@
 
 ADMIN
 database username = angel
-database password = jHr0nvKl/EtgTN[H
+database password = angel1234
  
