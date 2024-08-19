@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('content');
             $table->string('cover_image')->nullable();
             $table->timestamp('published_at')->nullable();
-            $table->string('user_id');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -1,28 +1,36 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ContactController;
 
 // Home page route
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [WelcomeController::class, 'index'])->name('home');
 
-// Dashboard route with authentication and email verification middleware
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Dashboard route
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
-// Routes voor de authentificatie en profile pagina
+// About page route
+Route::get('/about', function () {
+    return view('layouts.about');
+})->name('about');
+
+// Routes for authenticated users
 Route::middleware('auth')->group(function () {
-    // route voor de profile pagina
+    // Profile management routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Dit is enkell voor de admin van de database
-    Route::middleware('admin')->group(function () {
+    // Admin routes (make sure AdminController exists and is implemented)
+    Route::middleware(['auth','admin'])->group(function () {
+        Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
         Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
         Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
         Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
@@ -31,10 +39,17 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// Public routes om alle post te kunnen zien 
+// Public routes for viewing posts
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 
+//contact form
+Route::get('/contact', [ContactController::class, 'show'])->name('contact.form');
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+
 // Include authentication routes
 require __DIR__.'/auth.php';
+
+
+
 

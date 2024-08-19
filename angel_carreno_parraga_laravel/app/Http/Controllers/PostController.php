@@ -4,84 +4,85 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller; 
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
-    public function __construct()
-    {
-        // Apply auth middleware to all methods except index and show
-        $this->middleware('auth')->except(['index', 'show']);
-        
-        // Apply admin middleware to methods that require admin access
-        $this->middleware('admin')->only(['create', 'store', 'edit', 'update', 'destroy']);
-    }
-
-    public function index()
-    {
-        $posts = Post::latest()->get();
-        return view('posts.index', compact('posts'));
-    }
-
+    // Show form to create a new post
     public function create()
     {
         return view('posts.create');
     }
 
+    // Store a new post
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|max:255',
+            'title' => 'required|string|max:255',
             'content' => 'required',
-            'cover_image' => 'nullable|image'
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $path = $request->file('cover_image')?->store('images', 'public');
+        $post = new Post();
+        $post->title = $request->title;
+        $post->content = $request->content;
 
-        Post::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'cover_image' => $path,
-            'published_at' => now()
-        ]);
+        // Handle file upload
+        if ($request->hasFile('cover_image')) {
+            $fileNameToStore = $request->file('cover_image')->store('public/cover_images');
+            $post->cover_image = basename($fileNameToStore);
+        }
 
-        return redirect()->route('posts.index');
+        $post->save();
+
+        return redirect()->route('posts.create')->with('success', 'Post created successfully!');
     }
 
-    public function show(Post $post)
-    {
-        return view('posts.show', compact('post'));
-    }
-
+    // Show form to edit an existing post
     public function edit(Post $post)
     {
         return view('posts.edit', compact('post'));
     }
 
+    // Update an existing post
     public function update(Request $request, Post $post)
     {
         $request->validate([
-            'title' => 'required|max:255',
+            'title' => 'required|string|max:255',
             'content' => 'required',
-            'cover_image' => 'nullable|image'
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $path = $request->file('cover_image')?->store('images', 'public');
+        $post->title = $request->title;
+        $post->content = $request->content;
 
-        $post->update([
-            'title' => $request->title,
-            'content' => $request->content,
-            'cover_image' => $path
-        ]);
+        // Handle file upload
+        if ($request->hasFile('cover_image')) {
+            if ($post->cover_image) {
+                Storage::delete('public/cover_images/' . $post->cover_image);
+            }
+            $fileNameToStore = $request->file('cover_image')->store('public/cover_images');
+            $post->cover_image = basename($fileNameToStore);
+        }
 
-        return redirect()->route('posts.index');
+        $post->save();
+
+        return redirect()->route('posts.edit', $post->id)->with('success', 'Post updated successfully!');
     }
 
+    // Delete an existing post
     public function destroy(Post $post)
     {
+        if ($post->cover_image) {
+            Storage::delete('public/cover_images/' . $post->cover_image);
+        }
+
         $post->delete();
-        return redirect()->route('posts.index');
+
+        return redirect()->route('dashboard')->with('success', 'Post deleted successfully!');
     }
 }
+
+
 
 
